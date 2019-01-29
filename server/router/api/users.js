@@ -4,7 +4,6 @@ const router = require('express').Router();
 const auth = require('../auth');
 
 const Users = mongoose.model('Users');
-// const Users=require('../api/index');
 
 // POST new user route (optional, everyone has access)
 router.post('/', auth.optional, (req, res, next) => {
@@ -53,22 +52,21 @@ router.post('/login', auth.optional, (req, res, next) => {
       },
     });
   }
-
-  return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
+  return passport.authenticate('local', (err, user, info) => {
     if (err) {
       return next(err);
     }
 
-    if (passportUser) {
-      const user = passportUser;
-      user.token = passportUser.generateJWT();
-
-      return res.json({ user: user.toAuthJSON() });
+    if (user) {
+      const _user = user;
+      _user.token = user.generateJWT();
+      return res.json({ user: _user.toAuthJSON() });
     }
 
-    return status(400).info;
+    return res.status(400).json(info);
   })(req, res, next);
 });
+
 
 // GET current route (required, only authenticated users have access)
 router.get('/current', auth.required, (req, res, next) => {
