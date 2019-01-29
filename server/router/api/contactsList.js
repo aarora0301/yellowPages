@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const passport = require('passport');
 const router = require('express').Router();
 const auth = require('../auth');
 
@@ -43,12 +42,23 @@ router.post('/', auth.required, (req, res, next) => {
     .then(result => res.json({ message: 'list saved successfully', id: result.id })).catch(err => res.json({ message: 'not able to save list' }));
 });
 
-router.get('/', auth.required, (req, res, next) => ContactsList.find({ type: 'public' }, (err, contactsList) => {
-  if (err) {
-    return res.json({ message: 'not able to save list' });
+router.get('/', auth.required, (req, res, next) => {
+  const params = req.query.includePrivate;
+  console.log(params);
+  if (params === 'true') {
+    return ContactsList.find({ type: 'private' }, (err, contactsList) => {
+      if (err) {
+        return res.json({ message: 'not able to save list' });
+      }
+      res.send(contactsList);
+    });
   }
-  // return res.json{contacts:contactsList};
-  res.send(contactsList);
-}));
+  return ContactsList.find({ type: 'public' }, (err, contactsList) => {
+    if (err) {
+      return res.json({ message: 'not able to save list' });
+    }
+    res.send(contactsList);
+  });
+});
 
 module.exports = router;
