@@ -44,7 +44,6 @@ router.post('/', auth.required, (req, res, next) => {
 
 router.get('/', auth.required, (req, res, next) => {
   const params = req.query.includePrivate;
-  console.log(params);
   if (params === 'true') {
     return ContactsList.find({ type: 'private' }, (err, contactsList) => {
       if (err) {
@@ -53,6 +52,18 @@ router.get('/', auth.required, (req, res, next) => {
       res.send(contactsList);
     });
   }
+  const id=req.query.createdAt;
+  console.log("id "+id);
+  
+  if(id){
+    return ContactsList.find({ createdAt: id }, (err, contactsList) => {
+      if (err) {
+        return res.json({ message: 'not able to save list' });
+      }
+      res.send({message:contactsList});
+    });
+  }
+
   return ContactsList.find({ type: 'public' }, (err, contactsList) => {
     if (err) {
       return res.json({ message: 'not able to save list' });
